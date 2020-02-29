@@ -1,0 +1,189 @@
+﻿@model CountdownTimer.Models.TimerViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+<style>
+    .containerPadding{
+        padding:170px 0px 170px 0px;
+    }
+    .textWhite {
+        color: white;
+    }  
+    .fontSizeLarge{
+        font-size:20px;
+    }
+    .fontXLarge{
+        font-size:35px;
+    }
+     .darkBackground{
+        background-color:#222126;
+    }
+    .darkBackgroundBtn{
+        background-color:#948cad;
+        color:black;
+    } 
+     /*Override default boostrap 3*/
+    .row{
+         margin-left:0px; /*default -15px*/
+        margin-right:0px; /*default -15px*/
+    }
+     .centerBlock{
+        margin-left:auto;
+        margin-right:auto;
+        float:none;
+    }
+   @@media (max-width:360px) {
+        .containerPadding {
+            padding:10px 0px 10px 0px;
+        }
+    }
+</style>
+<div class="col-md-12 containerPadding" style="background:url('/Image/backgroundHome.png')">
+    @Html.Partial("_SuccessDarkModal")
+    @using (Html.BeginForm("PostCountdownTimer", "Home", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+    {
+    <div class="col-md-12">
+        <!--Input Hour Minute Second Section-->
+        <div class="row col-md-9 text-center textWhite centerBlock" style="padding:20px 0px 20px 0px">
+            <span class="col-md-4 fontSizeLarge">
+                @Html.TextBoxFor(m => m.Hour, new { @class = "form-control text-center", style = "width:100%" }) Hour
+            </span>
+            <span class="col-md-4 fontSizeLarge">
+                @Html.TextBoxFor(m => m.Minute, new { @class = "form-control text-center", style = "width:100%" }) Minute
+            </span>
+            <span class="col-md-4 fontSizeLarge">
+                @Html.TextBoxFor(m => m.Second, new { @class = "form-control text-center", style = "width:100%" }) Second
+            </span>
+        </div>
+
+        <!--Start and Reset button Section-->
+        <div class="row col-md-12 text-center">
+            <button type="submit" class="btn btn-lg btn-primary">Start</button>
+            <button type="button" onclick="resetTimer()" class="btn btn-lg btn-default">Reset</button>
+        </div>
+
+        <!--Count down Time Left Section-->
+        <div class="row col-md-12 text-center">
+            <h3 class="textWhite text-center" style="padding:10px 0px 10px 0px"><i class="fa fa-hourglass-half"></i> Time Left:</h3>
+        </div>
+
+        <div id="countdownResult" class="row col-md-12">
+            <div class="col-md-4 centerBlock">
+                <div class="row">
+                    <div class="col-md-4 text-center textWhite" style="padding:10px">
+                        <div style="background-color: rgba(0, 0, 0, 0.3);padding:10px">
+                            <div class="row fontXLarge" id="hrsLeft" style="padding:40px;font-weight:bold;">
+
+                            </div>
+                            <div class="row fontSizeLarge">
+                                hrs
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4 text-center textWhite" style="padding:10px">
+                        <div style="background-color: rgba(0, 0, 0, 0.3);padding:10px">
+                            <div class="row fontXLarge" id="minsLeft" style="padding:40px;font-weight:bold">
+
+                            </div>
+                            <div class="row fontSizeLarge">
+                                mins
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4 text-center textWhite" style="padding:10px">
+                        <div style="background-color: rgba(0, 0, 0, 0.3);padding:10px">
+                            <div class="row fontXLarge" id="secsLeft" style="padding:40px;font-weight:bold">
+
+                            </div>
+                            <div class="row fontSizeLarge">
+                                secs
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!--Modal Popup-->
+    <div id="modalPopup" class="btn darkBackgroundBtn smallPaddingAround" data-toggle="modal" data-target="#successDarkModal" style="display:none">
+
+    </div>
+
+    <!--Audio-->
+    <audio id="timesupAudio">
+        <!--credit: audio from http://www.orangefreesounds.com/wecker-sound/ artist:Alexander-->
+        <source src="~/Audio/Wecker-sound.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!--Footer-->
+    <footer class="col-md-12 text-center textWhite" style="padding-top:130px">
+        <p>
+            Developed by <a style="color:aquamarine" href="https://www.youtube.com/channel/UCd5nvmCXkry-0b9YMjlbP_g/" target="_blank">J.Y.Coding</a>.
+            Consider subscribing my YouTube channel for more source code. <i class="glyphicon glyphicon-heart"></i> <i class="glyphicon glyphicon-thumbs-up"></i>
+        </p>
+    </footer>
+</div>
+
+<script>
+  
+    var dt = '@TempData["EndTime"]';
+    var dateAr = dt.split('-'); //dd-MM-yyyy
+    var newDate = dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2]; //dd/MM/yyyy (string)
+
+    var end = new Date(dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2]); //dd/MM/yyyy (Date)
+    var _second = 1000;
+    var _minute = _second * 60;
+    var _hour = _minute * 60;
+    var _day = _hour * 24;
+    var timer;
+    timer = setInterval(showRemaining, 1000); //set the timer to happen every 1000ms (1s)
+
+    var timesupAudio = document.getElementById("timesupAudio"); 
+    function showRemaining() {
+        var now = new Date();
+        var distance = end - now; //in ms        
+        //user not yet submit input countdown hour/minute/second
+        if (isNaN(distance)) {
+            document.getElementById('hrsLeft').innerHTML = "";
+            document.getElementById('minsLeft').innerHTML = "";
+            document.getElementById('secsLeft').innerHTML = "";
+        } else {
+            var days = Math.floor(distance / _day); //convert ms to days
+            var hours = Math.floor((distance % _day) / _hour); //convert ms to hours
+            var minutes = Math.floor((distance % _hour) / _minute); //convert ms to minutes
+            var seconds = Math.floor((distance % _minute) / _second); //convert ms to seconds
+            document.getElementById('hrsLeft').innerHTML = hours;
+            document.getElementById('minsLeft').innerHTML = minutes;
+            document.getElementById('secsLeft').innerHTML = seconds;
+        }
+        if (distance < 0) {    
+           //play times up audio and display times up popup
+            resetTimer();
+            $('#modalPopup').click();
+            timesupAudio.volume = 0.5;
+            timesupAudio.play(); 
+        }       
+    }
+
+    function resetTimer() {
+        $.ajax({
+            url: '@Url.Action("StopTimer", "Home")',
+            type: "GET",
+            success: function (result) {
+                clearInterval(timer);
+                document.getElementById('hrsLeft').innerHTML = "";
+                document.getElementById('minsLeft').innerHTML = "";
+                document.getElementById('secsLeft').innerHTML = "";
+            }
+        });
+    }
+    function pauseAudio() {
+        timesupAudio.pause();
+    }
+</script>
