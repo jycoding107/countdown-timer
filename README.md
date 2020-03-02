@@ -1,7 +1,7 @@
 <h2>Asp.Net MVC C# Countdown Timer Full Source Code</h2>
 <p>In "/Home/Index.cshtml", when users input the hour,minute,second and then click on the Start button, the inputs are submitted to <code>PostCountdownTimer</code> action in <code>Home</code> controller. In the action, we get the end time by adding hour,minute,second to <code>DateTime.Now</code> and assign this end time value to <code>Session["EndTime"]</code>. Then, assign <code>Session["EndTime"]</code> value to <code>TempData["EndTime"]</code> because <code>TempData["EndTime"]</code> value is going to be used in the script section of "/Home/Index.cshtml" to calculate the duration of the time now with the TempData["EndTime"] and display the remaining time every single second.</p>
 <h2>Video Demo</h2>
-<p>https://youtu.be/EIfPN4xaoKU Coming Soon</p>
+<p>https://youtu.be/EIfPN4xaoKU</p>
 <h2>Features</h2>
 <p>
   <ul>
