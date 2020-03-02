@@ -9,6 +9,7 @@
     <li>Display remaining time</li>
     <li>Display popup when times up</li>
     <li>Play audio when times up</li>
+    <li>Reset Timer</li>
     </ul>
 </p>
 <h2>Screenshots</h2>
